@@ -1,0 +1,16 @@
+.card__btn-love {
+  width: 21px;
+  height: 19px;
+  margin-right: 12px;
+  background-image: url("../../../images/Group.svg");
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+}
+.card__btn-love:hover {
+  opacity: 0.5;
+}
+.card__btn-love_activate {
+  transform: scale(1.2, 1.2);
+  background-image: url("../../../images/Like.svg");
+}

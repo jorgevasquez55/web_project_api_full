@@ -1,0 +1,25 @@
+.InfoTooltip__btn-closet{
+        width: 40px;
+        height: 40px;
+        background-image: url("../../../images/CloseIcon.svg");
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-color: transparent;
+        position: absolute;
+        top: -40px;
+        right: -40px;
+        border: none;
+        cursor: pointer;
+      
+}
+.InfoTooltip__btn-closet:hover {
+    opacity: 0.5;
+  }
+  @media screen and (max-width: 537px) {
+    .InfoTooltip__btn-closet {
+      width: 20px;
+      height: 20px;
+      top: -33px;
+      right: -0px;
+    }
+  }

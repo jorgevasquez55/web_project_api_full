@@ -1,0 +1,19 @@
+.register__btn-save {
+    display: block;
+    max-width: 358px;
+    width: 100%;
+    text-align: center;
+    height: 50px;
+    margin: 120px auto 0;
+    font-family: "Inter-Regular";
+    background-color: #FFFFFF;
+    border: none;
+    border-radius: 2px;
+    cursor: pointer;
+    color: black;
+  }
+  .register__btn-save:hover{
+  opacity: 0.85;
+  background: #FFF;
+  }
+  

@@ -1,0 +1,9 @@
+.popup-add__input-error {
+  color: red;
+  font-family: "Inter-Regular";
+  font-size: 12px;
+  display: none;
+}
+.popup-add__input-error_active {
+  display: flex;
+}

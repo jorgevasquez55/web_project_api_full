@@ -1,0 +1,17 @@
+.popup-edit-img__container {
+  width: 430px;
+  height: 272px;
+  border-radius: 10px;
+  background: #fff;
+  box-sizing: border-box;
+  padding: 36px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+}
+@media screen and (max-width: 537px) {
+  .popup-edit-img__container {
+    width: 280px;
+  }
+}

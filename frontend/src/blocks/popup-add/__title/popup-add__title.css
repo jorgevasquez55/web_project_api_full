@@ -1,0 +1,10 @@
+.popup-add__title {
+  color: #000;
+  font-family: "Inter-Black";
+  font-size: 24px;
+}
+@media screen and (max-width: 537px) {
+  .popup__title {
+    font-size: 18px;
+  }
+}

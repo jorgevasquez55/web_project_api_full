@@ -1,0 +1,11 @@
+.card__content{
+  width: 22px;
+  min-height: 35px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: absolute;
+  bottom: 17px;
+  right: 12px;
+}
+

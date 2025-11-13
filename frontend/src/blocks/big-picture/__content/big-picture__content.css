@@ -1,0 +1,21 @@
+.big-picture__content {
+  max-width: 816px;
+  min-width: 290px;
+  max-height: 570px;
+  min-height: 322px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  position: relative;
+}
+@media screen and (max-width: 840px) {
+  .big-picture__content {
+    max-width: 433px;
+  }
+}
+@media screen and (max-width: 440px) {
+  .big-picture__content {
+    width: 240px;
+    height: 320px;
+  }
+}

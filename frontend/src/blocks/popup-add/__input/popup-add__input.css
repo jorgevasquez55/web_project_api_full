@@ -1,0 +1,10 @@
+.popup-add__input{
+  width: 100%;
+  height: 27px;
+  border: none;
+  font-family: 'Inter-Regular';
+  border-bottom: 1px solid grey;
+}
+.popup-add__input_type_error{
+  border-bottom: 2px solid red;
+}

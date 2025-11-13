@@ -1,0 +1,9 @@
+.profile__content{
+  width: 140px;
+  height: 127px;
+  background-size: cover;
+  background-position: center;
+  object-fit: cover;
+  box-sizing: border-box;
+  border-radius: 50%;
+}

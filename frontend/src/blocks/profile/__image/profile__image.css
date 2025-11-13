@@ -1,0 +1,7 @@
+.profile__image {
+  width: 140px;
+  height: 127px;
+  box-sizing: border-box;
+  border-radius: 50%;
+  z-index:1;
+}

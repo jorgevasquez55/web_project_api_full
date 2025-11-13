@@ -1,0 +1,13 @@
+.register__input {
+    display: block;
+    max-width: 358px;
+    width: 100%;
+    height: 27px;
+    text-align: center;
+    margin: 30px auto 0;
+    color: aliceblue;
+    background-color: #000;
+    border: none;
+    border-bottom: 1px solid grey;
+  }
+  

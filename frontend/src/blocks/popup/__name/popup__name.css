@@ -1,0 +1,10 @@
+.popup__name {
+  width: 100%;
+  height: 27px;
+  border: none;
+  font-family: 'Inter-Regular';
+  border-bottom: 1px solid grey;
+}
+.popup__name_type_error{
+  border-bottom: 2px solid red;
+}

@@ -1,0 +1,10 @@
+.profile__text {
+  color: #fff;
+  font-family: "Inter-Regular";
+  font-size: 18px;
+  margin-top: 16px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  max-width: 280px;
+}

@@ -1,0 +1,25 @@
+.add-button {
+  width: 150px;
+  height: 51px;
+  margin-right: 5px;
+  background-color: #000;
+  background-image: url("../../images/mas.svg");
+  background-position: center;
+  background-repeat: no-repeat;
+  border: 1px solid #ffffff;
+  cursor: pointer;
+}
+.add-button:hover {
+  opacity: 0.5;
+}
+@media screen and (max-width: 779px) {
+  .add-button {
+    margin-top: 12px;
+  }
+}
+@media screen and (max-width: 439px) {
+  .add-button {
+    margin-top: 12px;
+    width: 280px;
+  }
+}

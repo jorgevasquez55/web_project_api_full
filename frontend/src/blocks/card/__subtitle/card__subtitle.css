@@ -1,0 +1,10 @@
+.card__subtitle{
+  color: #000;
+  font-family: 'Inter-Black';
+  font-size: 24px;
+  max-width: 230px;
+  margin-left: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
