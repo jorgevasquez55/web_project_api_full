@@ -1,8 +1,9 @@
-const userModel = require("../models/user");
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
-const { HttpStatus, HttpResponseMessage } = require("../enums/http");
-require('dotenv').config();//-----
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const userModel = require('../models/user');
+const { HttpStatus } = require('../enums/http');
+require('dotenv').config();
+//-----
 const { NODE_ENV, JWT_SECRET } = process.env;
 
 module.exports.login = (req, res, next) => {
@@ -10,14 +11,14 @@ module.exports.login = (req, res, next) => {
   if (!password) {
     return res
       .status(HttpStatus.BAD_REQUEST)
-      .send({ message: "La contraseña no está definida" });
+      .send({ message: 'La contraseña no está definida' });
   }
   return userModel
     .findUserByCredentials(email, password)
     .then((user) => {
       res.send({
-        token: jwt.sign({ _id: user._id },NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret', {
-          expiresIn: "7d",
+        token: jwt.sign({ _id: user._id }, NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret', {
+          expiresIn: '7d',
         }),
       });
     })
@@ -25,14 +26,16 @@ module.exports.login = (req, res, next) => {
       next(err);
     });
 };
-module.exports.createUser = async (req, res, next ) => {
+module.exports.createUser = async (req, res, next) => {
   try {
-    const { name, about, avatar, email, password } = req.body;
+    const {
+      name, about, avatar, email, password,
+    } = req.body;
     const existingUser = await userModel.findOne({ email });
     if (existingUser) {
       return res
         .status(HttpStatus.CONFLICT)
-        .send({ message: "El usuario ya existe" });
+        .send({ message: 'El usuario ya existe' });
     }
 
     const hash = await bcrypt.hash(password, 10);
@@ -55,40 +58,13 @@ module.exports.createUser = async (req, res, next ) => {
 module.exports.getCurrentUser = async (req, res, next) => {
   try {
     const userId = req.user._id;
-    console.log(userId);
     const user = await userModel.findById(userId);
     if (!user) {
       return res
         .status(HttpStatus.NOT_FOUND)
-        .json({ message: "Usuario no encontrado" });
+        .json({ message: 'Usuario no encontrado' });
     }
     res.status(200).json(user);
-  } catch (error) {
-    next(error);
-  }
-};
-module.exports.updateUserProfile = async (req, res, next) => {
-  try {
-    const userId = req.params.userId;
-    const loggedInUserId = req.user._id;
-    if (userId !== loggedInUserId) {
-      return res
-        .status(HttpStatus.FORBIDDEN)
-        .send({ message: "No tienes permiso para editar este perfil" });
-    }
-    const user = await userModel.findByIdAndUpdate(userId, updates, {
-      new: true,
-    });
-
-    if (!user) {
-      return res
-        .status(HttpStatus.NOT_FOUND)
-        .send({ message: "Usuario no encontrado" });
-    }
-
-    res
-      .status(HttpStatus.OK)
-      .send({ message: "Perfil actualizado correctamente", user });
   } catch (error) {
     next(error);
   }
@@ -98,10 +74,10 @@ module.exports.getUsers = async (req, res, next) => {
     const usersData = await userModel.find({}).orFail();
     res.send({ data: usersData });
   } catch (error) {
-    if (error.name === "DocumentNotFoundError") {
+    if (error.name === 'DocumentNotFoundError') {
       return res
         .status(HttpStatus.NOT_FOUND)
-        .send({ error: "No se encontraron usuarios." });
+        .send({ error: 'No se encontraron usuarios.' });
     }
     next(error);
   }
@@ -111,14 +87,14 @@ module.exports.getUser = async (req, res, next) => {
     const userData = await userModel.findById(req.params.userId).orFail();
     res.send({ userData });
   } catch (error) {
-    if (error.name === "DocumentNotFoundError") {
+    if (error.name === 'DocumentNotFoundError') {
       return res
         .status(HttpStatus.NOT_FOUND)
-        .send({ error: "No se encontro el usuario" });
-    } else if (error.name === "CastError") {
+        .send({ error: 'No se encontro el usuario' });
+    } if (error.name === 'CastError') {
       return res
         .status(HttpStatus.BAD_REQUEST)
-        .send({ error: "ID de usuario inválido." });
+        .send({ error: 'ID de usuario inválido.' });
     }
     next(error);
   }
@@ -126,21 +102,21 @@ module.exports.getUser = async (req, res, next) => {
 
 function isValidURL(url) {
   return /https?:\/\/(www\.)?[a-zA-Z0-9\-]+(\.[a-zA-Z]{2,})?([a-zA-Z0-9\-._~:\/?%#\[\]@!$&'()*+,;=]*)?/.test(
-    url
+    url,
   );
 }
 module.exports.updateAvatar = async (req, res, next) => {
   try {
-    let avatar = req.body.avatar;
+    const { avatar } = req.body;
     if (!isValidURL(avatar)) {
       return res
         .status(HttpStatus.BAD_REQUEST)
-        .send({ error: "La URL no es válida para una actualizacion" });
+        .send({ error: 'La URL no es válida para una actualizacion' });
     }
     const updateAvatar = await userModel.findByIdAndUpdate(
       req.user._id,
       { avatar },
-      { new: true }
+      { new: true },
     );
     res.send({ data: updateAvatar });
   } catch (error) {
@@ -149,24 +125,18 @@ module.exports.updateAvatar = async (req, res, next) => {
 };
 module.exports.updateProfile = async (req, res, next) => {
   try {
-    let { name, about } = req.body;
-    const regex = /^[a-zA-Z0-9\s]{2,30}$/;
-    if (!regex.test(name) || !regex.test(about)) {
-      return res
-        .status(HttpStatus.BAD_REQUEST)
-        .send({ error: "datos no validos para actualizar el perfil" });
-    }
+    const { name, about } = req.body;
     const dataProfile = await userModel.findByIdAndUpdate(
       req.user._id,
       { name, about },
-      { new: true }
+      { new: true, runValidators: true },
     );
     res.send({ data: dataProfile });
   } catch (error) {
-    if (error.name === "DocumentNotFoundError") {
+    if (error.name === 'DocumentNotFoundError') {
       return res
         .status(HttpStatus.NOT_FOUND)
-        .send({ error: "usuario no encontrado." });
+        .send({ error: 'usuario no encontrado.' });
     }
     next(error);
   }

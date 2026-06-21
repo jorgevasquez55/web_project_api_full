@@ -1,6 +1,4 @@
-const mongoose = require("mongoose");
-
-const validator = require("validator");
+const mongoose = require('mongoose');
 
 const cardSchema = new mongoose.Schema({
   name: {
@@ -13,9 +11,9 @@ const cardSchema = new mongoose.Schema({
     type: String,
     required: true,
     validate: {
-      validator: function (v) {
+      validator(v) {
         return /https?:\/\/(www\.)?[a-zA-Z0-9\-]+(\.[a-zA-Z]{2,})?([a-zA-Z0-9\-._~:\/?%#\[\]@!$&\'()*+,;=]*)?/.test(
-          v
+          v,
         );
       },
       message: (props) => `${props.value} is not a valid !`,
@@ -23,7 +21,7 @@ const cardSchema = new mongoose.Schema({
   },
   owner: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "user",
+    ref: 'user',
     required: true,
   },
   likes: {
@@ -32,8 +30,8 @@ const cardSchema = new mongoose.Schema({
       name: String,
       about: String,
       avatar: String,
-      email: String
-  }],
+      email: String,
+    }],
     default: [],
   },
   createdAt: {
@@ -42,4 +40,4 @@ const cardSchema = new mongoose.Schema({
   },
 });
 
-module.exports = mongoose.model("card", cardSchema);
+module.exports = mongoose.model('card', cardSchema);

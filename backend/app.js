@@ -1,28 +1,35 @@
-const express = require("express");
+const express = require('express');
+
 const app = express();
-const mongoose = require("mongoose");
-const auth = require("./middleware/auth");
-const { celebrate, Joi } = require("celebrate");
-const validator = require("validator");
-const { errors } = require("celebrate");
+const mongoose = require('mongoose');
+const { celebrate, Joi } = require('celebrate');
+const validator = require('validator');
+const { errors } = require('celebrate');
 const cors = require('cors');
-const { login, createUser } = require("./controllers/users");
-const usersRouter = require("./routes/users");
-const cardsRouter = require("./routes/cards");
-const { HttpStatus, HttpResponseMessage } = require("./enums/http");
-const { requestLogger, errorLogger } = require("./middleware/logger");
+const auth = require('./middleware/auth');
+const { login, createUser } = require('./controllers/users');
+const usersRouter = require('./routes/users');
+const cardsRouter = require('./routes/cards');
+const { HttpStatus, HttpResponseMessage } = require('./enums/http');
+const { requestLogger, errorLogger } = require('./middleware/logger');
+
 console.log(process.env.NODE_ENV);
 const validateURL = (value, helpers) => {
   if (validator.isURL(value)) {
     return value;
   }
-  return helpers.error("string.uri");
+  return helpers.error('string.uri');
 };
 
-mongoose.connect("mongodb://localhost:27017/aroundb", {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
+const { MONGODB_URI = 'mongodb://localhost:27017/aroundb' } = process.env;
+
+mongoose
+  .connect(MONGODB_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => console.log('Conectado a MongoDB'))
+  .catch((err) => console.error('Error de conexión a MongoDB:', err.message));
 
 app.use(express.json());
 app.use(cors());
@@ -34,17 +41,17 @@ app.get('/crash-test', () => {
   }, 0);
 });
 app.post(
-  "/signin",
+  '/signin',
   celebrate({
     body: Joi.object().keys({
       email: Joi.string().email().required(),
       password: Joi.string().required().min(8),
     }),
   }),
-  login
+  login,
 );
 app.post(
-  "/signup",
+  '/signup',
   celebrate({
     body: Joi.object().keys({
       name: Joi.string().min(2).max(30),
@@ -54,17 +61,15 @@ app.post(
       password: Joi.string().required().min(8),
     }),
   }),
-  createUser
+  createUser,
 );
 app.use(auth);
-app.use("/users", usersRouter);
-app.use("/cards", cardsRouter);
+app.use('/users', usersRouter);
+app.use('/cards', cardsRouter);
 
-app.use((req, res) => {
-  return res
-    .status(HttpStatus.BAD_REQUEST)
-    .send(HttpResponseMessage.BAD_REQUEST);
-});
+app.use((req, res) => res
+  .status(HttpStatus.BAD_REQUEST)
+  .send(HttpResponseMessage.BAD_REQUEST));
 
 app.use(errorLogger);
 app.use(errors());
@@ -72,7 +77,7 @@ app.use((err, req, res, next) => {
   const { statusCode = HttpStatus.INTERNAL_SERVER_ERROR, message } = err;
   res.status(statusCode).send({
     message:
-      statusCode === 500 ? "Se ha producido un error en el servidor" : message,
+      statusCode === 500 ? 'Se ha producido un error en el servidor' : message,
   });
 });
 const { PORT = 3001 } = process.env;

@@ -1,45 +1,52 @@
-const router = require("express").Router();
-const path = require("path");
-const { celebrate, Joi } = require("celebrate");
-const validator = require("validator");
+const router = require('express').Router();
+const { celebrate, Joi } = require('celebrate');
+const validator = require('validator');
 const {
   getCurrentUser,
   getUsers,
   getUser,
   updateAvatar,
   updateProfile,
-} = require("../controllers/users");
+} = require('../controllers/users');
 
 const validateURL = (value, helpers) => {
   if (validator.isURL(value)) {
     return value;
   }
-  return helpers.error("string.uri");
+  return helpers.error('string.uri');
 };
 
 const authHeaderSchema = Joi.object({
   authorization: Joi.string().required(),
 }).unknown(true);
 
-router.get("/me", celebrate({
+router.get(
+  '/me',
+  celebrate({
     headers: authHeaderSchema,
   }),
-  getCurrentUser
+  getCurrentUser,
 );
-router.get("/", celebrate({
+router.get(
+  '/',
+  celebrate({
     headers: authHeaderSchema,
   }),
-  getUsers
+  getUsers,
 );
-router.get("/:userId", celebrate({
+router.get(
+  '/:userId',
+  celebrate({
     params: Joi.object().keys({
       userId: Joi.string().alphanum().length(24).required(),
     }),
     headers: authHeaderSchema,
   }),
-  getUser
+  getUser,
 );
-router.patch("/avatar", celebrate({
+router.patch(
+  '/avatar',
+  celebrate({
     body: Joi.object().keys({
       avatar: Joi.string().custom(validateURL),
     }),
@@ -47,9 +54,11 @@ router.patch("/avatar", celebrate({
       authorization: Joi.string().required(),
     }).unknown(true),
   }),
-  updateAvatar
+  updateAvatar,
 );
-router.patch("/me", celebrate({
+router.patch(
+  '/me',
+  celebrate({
     body: Joi.object().keys({
       name: Joi.string().min(2).max(30),
       about: Joi.string().min(2).max(30),
@@ -58,7 +67,7 @@ router.patch("/me", celebrate({
       authorization: Joi.string().required(),
     }).unknown(true),
   }),
-  updateProfile
+  updateProfile,
 );
 
 module.exports = router;
