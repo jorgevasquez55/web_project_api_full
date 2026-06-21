@@ -4,6 +4,9 @@ export default class Api {
     this._authorization = token;
     this._datos = datos;
   }
+  setToken(token) {
+    this._authorization = token;
+  }
   _fetchWithAuthorization(url, options) {
     return fetch(url, {
       ...options,

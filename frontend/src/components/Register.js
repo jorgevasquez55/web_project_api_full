@@ -48,7 +48,7 @@ function Register(props) {
 
   const handleCloseTooltip = () => {
     setShowTooltip(false);
-    navigate("/web_project_around_auth/signin");
+    navigate("/signin");
   };
 
   return (

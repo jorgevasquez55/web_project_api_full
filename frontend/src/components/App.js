@@ -119,6 +119,11 @@ function App() {
   useEffect(() => {
     (async () => {
       try {
+        const jwt = localStorage.getItem("token");
+        if (!jwt) {
+          return;
+        }
+        api.setToken(jwt);
         await tokenCheck();
         const initialCardsData = await api.getInitialCards("cards");
         setCards(initialCardsData.data);
