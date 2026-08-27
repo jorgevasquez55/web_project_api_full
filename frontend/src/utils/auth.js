@@ -1,4 +1,4 @@
-export const BASE_URL = "https://api.aroundeua.aroundproject.cloudns.be";  //"https://register.nomoreparties.co  subdomain para regis y aut"
+export const BASE_URL = "https://around-jorge.abrdns.com";
 
 export const register = (name, about, avatar, password, email) => {//registraria al usuario y devolveria la informacion del usuario 
   return fetch(`${BASE_URL}/signup`, {
