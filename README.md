@@ -1,7 +1,7 @@
 # Tripleten web_project_api_full
 
 Link de acceso
-](https://loyal-gateway-409318.web.app/signup)
+]([)](https://web-project-1dd9b.web.app/signup)
 Descripción general
 
 Este proyecto tiene como objetivo poner en práctica el desarrollo back-end, es decir, trabajar del lado del servidor. Aquí implementé diversas tecnologías y un framework central para construir la lógica del servidor, gestionar datos, manejar solicitudes y respuestas HTTP, y realizar otras tareas esenciales en un entorno backend.
