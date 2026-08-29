@@ -20,7 +20,7 @@ const validateURL = (value, helpers) => {
   return helpers.error("string.uri");
 };
 
-mongoose.connect(process.env.MONGO_URI);
+mongoose.connect(process.env.MONGO_URI || "mongodb://localhost:27017/aroundb");
 
 app.use(express.json());
 app.use(cors());
@@ -60,8 +60,8 @@ app.use("/cards", cardsRouter);
 
 app.use((req, res) => {
   return res
-    .status(HttpStatus.BAD_REQUEST)
-    .send(HttpResponseMessage.BAD_REQUEST);
+    .status(HttpStatus.NOT_FOUND)
+    .send({ message: "La solicitud se envió a una dirección inexistente" });
 });
 
 app.use(errorLogger);
@@ -70,7 +70,7 @@ app.use((err, req, res, next) => {
   const { statusCode = HttpStatus.INTERNAL_SERVER_ERROR, message } = err;
   res.status(statusCode).send({
     message:
-      statusCode === 500 ? "Se ha producido un error en el servidor" : message,
+      statusCode === 500 ? "An error has ocurred on the server" : message,
   });
 });
 const { PORT = 3001 } = process.env;
