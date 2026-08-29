@@ -1,79 +1,176 @@
-require("dotenv").config();
-const express = require("express");
-const app = express();
-const mongoose = require("mongoose");
-const auth = require("./middleware/auth");
-const { celebrate, Joi } = require("celebrate");
-const validator = require("validator");
-const { errors } = require("celebrate");
-const cors = require('cors');
-const { login, createUser } = require("./controllers/users");
-const usersRouter = require("./routes/users");
-const cardsRouter = require("./routes/cards");
-const { HttpStatus, HttpResponseMessage } = require("./enums/http");
-const { requestLogger, errorLogger } = require("./middleware/logger");
-console.log(process.env.NODE_ENV);
-const validateURL = (value, helpers) => {
-  if (validator.isURL(value)) {
-    return value;
+const userModel = require("../models/user");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const { HttpStatus, HttpResponseMessage } = require("../enums/http");
+require('dotenv').config();//-----
+const { NODE_ENV, JWT_SECRET } = process.env;
+
+module.exports.login = (req, res, next) => {
+  const { email, password } = req.body;
+  if (!password) {
+    return res
+      .status(HttpStatus.BAD_REQUEST)
+      .send({ message: "La contraseña no está definida" });
   }
-  return helpers.error("string.uri");
+  return userModel
+    .findUserByCredentials(email, password)
+    .then((user) => {
+      res.send({
+        token: jwt.sign({ _id: user._id },NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret', {
+          expiresIn: "7d",
+        }),
+      });
+    })
+    .catch((err) => {
+      next(err);
+    });
+};
+module.exports.createUser = async (req, res, next ) => {
+  try {
+    const { name, about, avatar, email, password } = req.body;
+    const existingUser = await userModel.findOne({ email });
+    if (existingUser) {
+      return res
+        .status(HttpStatus.CONFLICT)
+        .send({ message: "El usuario ya existe" });
+    }
+
+    const hash = await bcrypt.hash(password, 10);
+    const user = await userModel.create({
+      name,
+      about,
+      avatar,
+      email,
+      password: hash,
+    });
+
+    res.status(HttpStatus.OK).send({
+      _id: user._id,
+      email: user.email,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+module.exports.getCurrentUser = async (req, res, next) => {
+  try {
+    const userId = req.user._id;
+    console.log(userId);
+    const user = await userModel.findById(userId);
+    if (!user) {
+      return res
+        .status(HttpStatus.NOT_FOUND)
+        .json({ message: "Usuario no encontrado" });
+    }
+    res.status(200).json(user);
+  } catch (error) {
+    next(error);
+  }
+};
+module.exports.updateUserProfile = async (req, res, next) => {
+  try {
+    const userId = req.params.userId;
+    const loggedInUserId = req.user._id;
+    if (userId !== loggedInUserId) {
+      return res
+        .status(HttpStatus.FORBIDDEN)
+        .send({ message: "No tienes permiso para editar este perfil" });
+    }
+    const { name, about, avatar } = req.body;
+    const user = await userModel.findByIdAndUpdate(
+      userId,
+      { name, about, avatar },
+      { new: true }
+    );
+
+    if (!user) {
+      return res
+        .status(HttpStatus.NOT_FOUND)
+        .send({ message: "Usuario no encontrado" });
+    }
+
+    res
+      .status(HttpStatus.OK)
+      .send({ message: "Perfil actualizado correctamente", user });
+  } catch (error) {
+    next(error);
+  }
+};
+module.exports.getUsers = async (req, res, next) => {
+  try {
+    const usersData = await userModel.find({}).orFail();
+    res.send({ data: usersData });
+  } catch (error) {
+    if (error.name === "DocumentNotFoundError") {
+      return res
+        .status(HttpStatus.NOT_FOUND)
+        .send({ message: "No se encontraron usuarios." });
+    }
+    next(error);
+  }
+};
+module.exports.getUser = async (req, res, next) => {
+  try {
+    const userData = await userModel.findById(req.params.userId).orFail();
+    res.send({ userData });
+  } catch (error) {
+    if (error.name === "DocumentNotFoundError") {
+      return res
+        .status(HttpStatus.NOT_FOUND)
+        .send({ message: "No se encontro el usuario" });
+    } else if (error.name === "CastError") {
+      return res
+        .status(HttpStatus.BAD_REQUEST)
+        .send({ message: "ID de usuario inválido." });
+    }
+    next(error);
+  }
 };
 
-mongoose.connect(process.env.MONGO_URI || "mongodb://localhost:27017/aroundb");
-
-app.use(express.json());
-app.use(cors());
-app.options('*', cors());
-app.use(requestLogger);
-app.get('/crash-test', () => {
-  setTimeout(() => {
-    throw new Error('El servidor va a caer');
-  }, 0);
-});
-app.post(
-  "/signin",
-  celebrate({
-    body: Joi.object().keys({
-      email: Joi.string().email().required(),
-      password: Joi.string().required().min(8),
-    }),
-  }),
-  login
-);
-app.post(
-  "/signup",
-  celebrate({
-    body: Joi.object().keys({
-      name: Joi.string().min(2).max(30),
-      about: Joi.string().min(2).max(30),
-      avatar: Joi.string().custom(validateURL),
-      email: Joi.string().email().required(),
-      password: Joi.string().required().min(8),
-    }),
-  }),
-  createUser
-);
-app.use(auth);
-app.use("/users", usersRouter);
-app.use("/cards", cardsRouter);
-
-app.use((req, res) => {
-  return res
-    .status(HttpStatus.NOT_FOUND)
-    .send({ message: "La solicitud se envió a una dirección inexistente" });
-});
-
-app.use(errorLogger);
-app.use(errors());
-app.use((err, req, res, next) => {
-  const { statusCode = HttpStatus.INTERNAL_SERVER_ERROR, message } = err;
-  res.status(statusCode).send({
-    message:
-      statusCode === 500 ? "An error has ocurred on the server" : message,
-  });
-});
-const { PORT = 3001 } = process.env;
-app.listen(PORT, () => {
-  console.log(`App listening at port ${PORT}`);
-});
+function isValidURL(url) {
+  return /https?:\/\/(www\.)?[a-zA-Z0-9\-]+(\.[a-zA-Z]{2,})?([a-zA-Z0-9\-._~:\/?%#\[\]@!$&'()*+,;=]*)?/.test(
+    url
+  );
+}
+module.exports.updateAvatar = async (req, res, next) => {
+  try {
+    let avatar = req.body.avatar;
+    if (!isValidURL(avatar)) {
+      return res
+        .status(HttpStatus.BAD_REQUEST)
+        .send({ message: "La URL no es válida para una actualizacion" });
+    }
+    const updateAvatar = await userModel.findByIdAndUpdate(
+      req.user._id,
+      { avatar },
+      { new: true }
+    );
+    res.send({ data: updateAvatar });
+  } catch (error) {
+    next(error);
+  }
+};
+module.exports.updateProfile = async (req, res, next) => {
+  try {
+    let { name, about } = req.body;
+    const regex = /^[a-zA-Z0-9\s]{2,30}$/;
+    if (!regex.test(name) || !regex.test(about)) {
+      return res
+        .status(HttpStatus.BAD_REQUEST)
+        .send({ message: "datos no validos para actualizar el perfil" });
+    }
+    const dataProfile = await userModel.findByIdAndUpdate(
+      req.user._id,
+      { name, about },
+      { new: true }
+    );
+    res.send({ data: dataProfile });
+  } catch (error) {
+    if (error.name === "DocumentNotFoundError") {
+      return res
+        .status(HttpStatus.NOT_FOUND)
+        .send({ message: "usuario no encontrado." });
+    }
+    next(error);
+  }
+};
