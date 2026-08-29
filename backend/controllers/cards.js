@@ -8,7 +8,7 @@ module.exports.getCards = async (req, res, next) => {
     res.send({ data: cards });
   } catch (error) {
     if (error.name === "DocumentNotFoundError") {
-      return res.status(HttpStatus.NOT_FOUND).send({ error: "No se encontraron tarjetas." });
+      return res.status(HttpStatus.NOT_FOUND).send({ message: "No se encontraron tarjetas." });
     }
     next(error);
   }
@@ -21,7 +21,7 @@ module.exports.createCard = async (req, res, next) => {
     res.send({ data: newCard });
   } catch (error) {
     if (error.name === "ValidationError") {
-      return res.status(HttpStatus.BAD_REQUEST).send({ error: "se pasaron datos invalidos al crear una card" });
+      return res.status(HttpStatus.BAD_REQUEST).send({ message: "se pasaron datos invalidos al crear una card" });
     }
     next(error);
   }
@@ -62,7 +62,7 @@ module.exports.likeCard = async (req, res, next) => {
     if (!updatedCard) {
       return res
         .status(HttpStatus.NOT_FOUND)
-        .send({ error: "Tarjeta no encontrada" });
+        .send({ message: "Tarjeta no encontrada" });
     }
     res.send({ data: updatedCard });
   } catch (error) {
@@ -79,7 +79,7 @@ module.exports.dislikeCard = async (req, res, next) => {
       { new: true }
     );
     if (!updatedCard) {
-      return res.status(HttpStatus.NOT_FOUND).send({ error: 'Tarjeta no encontrada' });
+      return res.status(HttpStatus.NOT_FOUND).send({ message: 'Tarjeta no encontrada' });
     }
     res.send ({ data: updatedCard });
   } catch (error) {
