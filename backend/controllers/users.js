@@ -104,7 +104,7 @@ module.exports.getUsers = async (req, res, next) => {
     if (error.name === "DocumentNotFoundError") {
       return res
         .status(HttpStatus.NOT_FOUND)
-        .send({ error: "No se encontraron usuarios." });
+        .send({ message: "No se encontraron usuarios." });
     }
     next(error);
   }
@@ -117,11 +117,11 @@ module.exports.getUser = async (req, res, next) => {
     if (error.name === "DocumentNotFoundError") {
       return res
         .status(HttpStatus.NOT_FOUND)
-        .send({ error: "No se encontro el usuario" });
+        .send({ message: "No se encontro el usuario" });
     } else if (error.name === "CastError") {
       return res
         .status(HttpStatus.BAD_REQUEST)
-        .send({ error: "ID de usuario inválido." });
+        .send({ message: "ID de usuario inválido." });
     }
     next(error);
   }
@@ -138,7 +138,7 @@ module.exports.updateAvatar = async (req, res, next) => {
     if (!isValidURL(avatar)) {
       return res
         .status(HttpStatus.BAD_REQUEST)
-        .send({ error: "La URL no es válida para una actualizacion" });
+        .send({ message: "La URL no es válida para una actualizacion" });
     }
     const updateAvatar = await userModel.findByIdAndUpdate(
       req.user._id,
@@ -157,7 +157,7 @@ module.exports.updateProfile = async (req, res, next) => {
     if (!regex.test(name) || !regex.test(about)) {
       return res
         .status(HttpStatus.BAD_REQUEST)
-        .send({ error: "datos no validos para actualizar el perfil" });
+        .send({ message: "datos no validos para actualizar el perfil" });
     }
     const dataProfile = await userModel.findByIdAndUpdate(
       req.user._id,
@@ -169,7 +169,7 @@ module.exports.updateProfile = async (req, res, next) => {
     if (error.name === "DocumentNotFoundError") {
       return res
         .status(HttpStatus.NOT_FOUND)
-        .send({ error: "usuario no encontrado." });
+        .send({ message: "usuario no encontrado." });
     }
     next(error);
   }
